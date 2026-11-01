@@ -1,4 +1,4 @@
-// cart.js: search products, add and remove cart items, send the cart with AJAX.
+// cart.js: search products, add and remove cart items.
 
 let products = [];
 let cart = JSON.parse(localStorage.getItem('partwise.cart') || '[]');
@@ -62,16 +62,4 @@ $(function () {
       showResults();
     });
   }
-
-  // send the cart JSON to the RESTful API (built in a later lab)
-  $('#checkoutBtn').click(function () {
-    $.ajax({
-      url: '/api/cart',
-      method: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(cart),
-      success: function () { $('#message').text('Order sent!'); },
-      error: function () { $('#message').text('API not built yet. Cart JSON is ready to send.'); }
-    });
-  });
 });
