@@ -1,4 +1,4 @@
-// checkout.js: AngularJS order form that sends the order JSON to the API with AJAX.
+// checkout.js angularjs order form that sends the order to the api with ajax.
 
 const cart = JSON.parse(localStorage.getItem('partwise.cart') || '[]');
 
