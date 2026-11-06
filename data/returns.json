@@ -1,0 +1,21 @@
+[
+  {
+    "id": "R-1793993652680",
+    "status": "Pending",
+    "date": "2026-11-06T19:34:12.680Z",
+    "fullName": "Anson Poon",
+    "email": "anson@example.com",
+    "items": [
+      {
+        "id": "rtx-5070-black-oc",
+        "name": "GIGABYTE GeForce RTX 5070 GAMING OC 12G",
+        "price": 1103,
+        "image": "images/products/rtx-5070-black-oc.jpg",
+        "reason": "Not compatible",
+        "condition": "Opened"
+      }
+    ],
+    "details": "Card is too long for my case.",
+    "refundTotal": 1103
+  }
+]

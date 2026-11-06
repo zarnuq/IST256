@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing Details | Partwise</title>
+
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/brite/bootstrap.min.css">
+
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" defer></script>
+  <script src="js/cart-count.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/angular@1.8.3/angular.min.js" defer></script>
+  <script src="js/billing.js" defer></script>
+</head>
+
+<body class="d-flex flex-column min-vh-100" ng-app="billingApp" ng-controller="BillingCtrl">
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg bg-white sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <i class="bi bi-cpu-fill me-1" aria-hidden="true"></i>
+        Partwise
+      </a>
+
+      <button class="navbar-toggler" type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainNav"
+        aria-controls="mainNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Home</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="signup.html">Sign Up</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="members.html">Members</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="products.html">Shop</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="#">Builder</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="returns.html">Returns</a>
+          </li>
+        </ul>
+
+        <div class="d-flex gap-2">
+          <a class="btn btn-outline-dark position-relative" href="cart.html" aria-label="Cart">
+            <i class="bi bi-cart" aria-hidden="true"></i>
+          <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" hidden></span></a>
+
+          <a class="btn btn-primary" href="signup.html">
+            Join now
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5 flex-grow-1">
+    <h1 class="mb-4">Billing Details</h1>
+    <div class="row">
+
+      <!-- billing form -->
+      <div class="col-md-7 mb-4">
+        <form class="card card-body" novalidate ng-submit="submit()" ng-model-options="{ allowInvalid: true }">
+          <div class="mb-3">
+            <label for="fullName" class="form-label">Full name *</label>
+            <input class="form-control" id="fullName" ng-model="form.fullName" ng-class="{'is-invalid': errors.fullName}">
+            <div class="invalid-feedback" ng-bind="errors.fullName"></div>
+          </div>
+
+          <div class="mb-3">
+            <label for="street" class="form-label">Street address *</label>
+            <input class="form-control" id="street" ng-model="form.street" ng-class="{'is-invalid': errors.street}">
+            <div class="invalid-feedback" ng-bind="errors.street"></div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-6 mb-3">
+              <label for="city" class="form-label">City *</label>
+              <input class="form-control" id="city" ng-model="form.city" ng-class="{'is-invalid': errors.city}">
+              <div class="invalid-feedback" ng-bind="errors.city"></div>
+            </div>
+            <div class="col-sm-2 mb-3">
+              <label for="state" class="form-label">State *</label>
+              <input class="form-control" id="state" maxlength="2" placeholder="PA" ng-model="form.state" ng-class="{'is-invalid': errors.state}">
+              <div class="invalid-feedback" ng-bind="errors.state"></div>
+            </div>
+            <div class="col-sm-4 mb-3">
+              <label for="zip" class="form-label">ZIP code *</label>
+              <input class="form-control" id="zip" maxlength="5" ng-model="form.zip" ng-class="{'is-invalid': errors.zip}">
+              <div class="invalid-feedback" ng-bind="errors.zip"></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="cardNumber" class="form-label">Credit card number *</label>
+            <input class="form-control" id="cardNumber" maxlength="19" placeholder="1234 5678 9012 3456" ng-model="form.cardNumber" ng-class="{'is-invalid': errors.cardNumber}">
+            <div class="invalid-feedback" ng-bind="errors.cardNumber"></div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-6 mb-3">
+              <label for="expiration" class="form-label">Expiration date *</label>
+              <input class="form-control" id="expiration" maxlength="5" placeholder="MM/YY" ng-model="form.expiration" ng-class="{'is-invalid': errors.expiration}">
+              <div class="invalid-feedback" ng-bind="errors.expiration"></div>
+            </div>
+            <div class="col-sm-6 mb-3">
+              <label for="cvv" class="form-label">Security code *</label>
+              <input type="password" class="form-control" id="cvv" maxlength="3" placeholder="123" ng-model="form.cvv" ng-class="{'is-invalid': errors.cvv}">
+              <div class="invalid-feedback" ng-bind="errors.cvv"></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <p class="form-label">Delivery *</p>
+            <div class="form-check" ng-repeat="d in deliveryOptions">
+              <input class="form-check-input" type="radio" id="d{{$index}}" value="{{d}}" ng-model="form.delivery">
+              <label class="form-check-label" for="d{{$index}}" ng-bind="d"></label>
+            </div>
+            <div class="text-danger small" ng-bind="errors.delivery"></div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Pay {{total() | currency}}</button>
+          <div class="alert mt-3" ng-show="message" ng-class="success ? 'alert-success' : 'alert-danger'" ng-bind="message"></div>
+        </form>
+      </div>
+
+      <!-- order summary from the cart -->
+      <div class="col-md-5">
+        <h2 class="h5">Order summary</h2>
+        <p class="text-danger" ng-show="errors.items" ng-bind="errors.items"></p>
+        <ul class="list-group mb-2">
+          <li class="list-group-item d-flex justify-content-between" ng-repeat="item in items">
+            <span>{{item.quantity}} x {{item.description}}</span>
+            <span>{{item.price * item.quantity | currency}}</span>
+          </li>
+        </ul>
+        <p class="mb-1">Subtotal: {{subtotal() | currency}}</p>
+        <p class="mb-1">Delivery<span ng-show="form.delivery"> ({{form.delivery}})</span>: {{deliveryCost() | currency}}</p>
+        <p class="fw-bold">Total: {{total() | currency}}</p>
+        <p class="mb-0" ng-show="form.street">Ships to: {{form.street}}, {{form.city}} {{form.state}} {{form.zip}}</p>
+      </div>
+    </div>
+
+    <!-- billing JSON that gets sent -->
+    <h2 class="h5 mt-4">billing.json</h2>
+    <pre class="border p-3 bg-light" ng-bind="billing() | json"></pre>
+
+    <!-- what the Node.js server sent back -->
+    <div ng-show="response">
+      <h2 class="h5 mt-4">Server response</h2>
+      <pre class="border p-3 bg-light" ng-bind="response | json"></pre>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container d-flex flex-column flex-md-row justify-content-between gap-2">
+      <span><strong>Partwise</strong> &middot; Web Development group project</span>
+      <span class="small">Oliver Aaron &middot; Jeremy Hou &middot; Miles Alford &middot; Anson Poon &middot; Aryan
+        Vir</span>
+    </div>
+  </footer>
+
+</body>
+</html>

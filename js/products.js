@@ -65,6 +65,19 @@ function startEdit(p) {
   $('#productForm')[0].scrollIntoView({ behavior: 'smooth' });
 }
 
+// Adds one of this product to the cart the Cart page uses (or bumps its quantity).
+function addToCart(p, button) {
+  const cart = JSON.parse(localStorage.getItem('partwise.cart') || '[]');
+  const item = cart.find(x => x.id === p.id);
+  if (item) item.quantity += 1;
+  else cart.push({ id: p.id, description: p.description, category: p.category, unit: p.unit, price: p.price, quantity: 1 });
+  localStorage.setItem('partwise.cart', JSON.stringify(cart));
+  updateCartCount();
+  // quick "it worked" on the button
+  $(button).text('Added!');
+  setTimeout(() => $(button).text('Add to cart'), 1000);
+}
+
 // Builds one product card. .text() keeps typed HTML from running.
 function card(p) {
   const body = $('<div class="card-body d-flex flex-column">').append(
@@ -73,6 +86,7 @@ function card(p) {
     $('<p class="card-text small">').text(p.additionalInfo),
     $('<p class="fw-bold mt-auto">').text(money.format(p.price) + ' / ' + p.unit),
     $('<div class="d-flex gap-2">').append(
+      $('<button type="button" class="btn btn-sm btn-dark">Add to cart</button>').on('click', function () { addToCart(p, this); }),
       $('<button type="button" class="btn btn-sm btn-primary">Edit</button>').on('click', () => startEdit(p)),
       $('<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>').on('click', () => {
         if (!confirm('Delete ' + p.description + '?')) return;
@@ -138,6 +152,6 @@ $(function () {
   } else {
     $.getJSON('data/products.json')
       .done(data => { products = data; save(); })
-      .fail(() => $('#noResults').text('Could not load data/products.json. Open the site with Live Server.').prop('hidden', false));
+      .fail(() => $('#noResults').text('Could not load data/products.json. Run "node js/server.js" and open http://localhost:3000.').prop('hidden', false));
   }
 });

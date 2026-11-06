@@ -45,11 +45,31 @@ function showCart() {
   $('#cartTotal').text(total.toFixed(2));
   $('#jsonView').text(JSON.stringify(cart, null, 2));
   localStorage.setItem('partwise.cart', JSON.stringify(cart));
+  updateCartCount();
+}
+
+// AJAX: sends the cart JSON to the RESTful API.
+function saveCart() {
+  if (!cart.length) {
+    $('#saveMessage').attr('class', 'alert alert-danger mt-3').text('Your cart is empty. Add a product first.').prop('hidden', false);
+    return;
+  }
+  $.ajax({
+    url: '/api/cart',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(cart)
+  }).done(function (res) {
+    $('#saveMessage').attr('class', 'alert alert-success mt-3').text('Cart saved! ' + res.items.length + ' item(s), cart ' + res.id + '.').prop('hidden', false);
+  }).fail(function () {
+    $('#saveMessage').attr('class', 'alert alert-danger mt-3').text('Could not reach the server. Run "node js/server.js" first.').prop('hidden', false);
+  });
 }
 
 $(function () {
   showCart();
   $('#search').on('input', showResults);
+  $('#saveCart').on('click', saveCart);
 
   // load the same products the Shop page uses
   const saved = localStorage.getItem('partwise.products');

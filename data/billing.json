@@ -1,0 +1,34 @@
+[
+  {
+    "id": "B-1793993652559",
+    "status": "Payment approved",
+    "date": "2026-11-06T19:34:12.559Z",
+    "fullName": "Anson Poon",
+    "address": {
+      "street": "Westgate Building",
+      "city": "University Park",
+      "state": "PA",
+      "zip": "16802"
+    },
+    "payment": {
+      "method": "Credit card",
+      "cardNumber": "************1111",
+      "expiration": "12/28"
+    },
+    "delivery": {
+      "method": "Standard shipping",
+      "cost": 9.99
+    },
+    "items": [
+      {
+        "id": "AMD-100-100001084WOF",
+        "description": "AMD Ryzen 7 9800X3D 4.7 GHz Eight-Core AM5 desktop processor",
+        "category": "CPUs",
+        "unit": "Each",
+        "price": 444,
+        "quantity": 1
+      }
+    ],
+    "total": 453.99
+  }
+]

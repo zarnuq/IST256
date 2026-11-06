@@ -7,3 +7,10 @@
     color: #fff;
     padding: 1.75rem 0;
 }
+
+/* small product pictures on the Returns page */
+.thumb {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
