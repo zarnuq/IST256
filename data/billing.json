@@ -1,23 +1,14 @@
 [
   {
-    "id": "B-1793993652559",
+    "id": "B-1794180160208",
     "status": "Payment approved",
-    "date": "2026-11-06T19:34:12.559Z",
+    "date": "2026-11-08T23:22:40.208Z",
     "fullName": "Anson Poon",
-    "address": {
-      "street": "Westgate Building",
-      "city": "University Park",
-      "state": "PA",
-      "zip": "16802"
-    },
+    "address": "Westgate Building, University Park, PA 16802",
     "payment": {
       "method": "Credit card",
       "cardNumber": "************1111",
       "expiration": "12/28"
-    },
-    "delivery": {
-      "method": "Standard shipping",
-      "cost": 9.99
     },
     "items": [
       {
@@ -29,6 +20,6 @@
         "quantity": 1
       }
     ],
-    "total": 453.99
+    "total": 444
   }
 ]

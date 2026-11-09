@@ -22,7 +22,7 @@
 
 <body class="d-flex flex-column min-vh-100" ng-app="returnsApp" ng-controller="ReturnsCtrl">
 
-  <!-- Navigation -->
+  <!-- nav -->
   <nav class="navbar navbar-expand-lg bg-white sticky-top">
     <div class="container">
       <a class="navbar-brand" href="index.html">
@@ -83,7 +83,7 @@
     <h1 class="mb-4">Returns</h1>
     <div class="row">
 
-      <!-- search products, filled by jQuery -->
+      <!-- jquery search -->
       <div class="col-md-5 mb-4">
         <h2 class="h5">Find products to return</h2>
         <input type="search" class="form-control mb-2" id="search" placeholder="Search products">
@@ -92,7 +92,7 @@
 
       <!-- return form -->
       <div class="col-md-7">
-        <form class="card card-body" novalidate ng-submit="submit()" ng-model-options="{ allowInvalid: true }">
+        <form class="card card-body" novalidate ng-submit="submit()">
           <div class="row">
             <div class="col-sm-6 mb-3">
               <label for="fullName" class="form-label">Full name *</label>
@@ -109,7 +109,7 @@
           <p class="form-label">Products to return *</p>
           <p class="text-danger" ng-show="errors.items" ng-bind="errors.items"></p>
 
-          <!-- one box per product being returned -->
+          <!-- one box per product -->
           <div class="border rounded p-3 mb-3" ng-repeat="item in items">
             <div class="d-flex gap-3 align-items-center mb-2">
               <img class="thumb" ng-src="{{item.image}}" alt="{{item.name}}">
@@ -141,22 +141,15 @@
             <textarea class="form-control" id="details" rows="3" ng-model="form.details"></textarea>
           </div>
 
-          <p class="fw-bold">Refund total: {{refundTotal() | currency}}</p>
           <button type="submit" class="btn btn-primary">Submit return</button>
           <div class="alert mt-3" ng-show="message" ng-class="success ? 'alert-success' : 'alert-danger'" ng-bind="message"></div>
         </form>
       </div>
     </div>
 
-    <!-- return JSON that gets sent -->
+    <!-- return json -->
     <h2 class="h5 mt-4">returns.json</h2>
     <pre class="border p-3 bg-light" ng-bind="returnDoc() | json"></pre>
-
-    <!-- what the Node.js server sent back -->
-    <div ng-show="response">
-      <h2 class="h5 mt-4">Server response</h2>
-      <pre class="border p-3 bg-light" ng-bind="response | json"></pre>
-    </div>
   </main>
 
   <footer class="site-footer">
