@@ -48,7 +48,7 @@ function showCart() {
   updateCartCount();
 }
 
-// AJAX: sends the cart JSON to the RESTful API.
+// AJAX: saves the cart to the shoppingcart collection in MongoDB.
 function saveCart() {
   if (!cart.length) {
     $('#saveMessage').attr('class', 'alert alert-danger mt-3').text('Your cart is empty. Add a product first.').prop('hidden', false);
@@ -58,11 +58,11 @@ function saveCart() {
     url: '/api/cart',
     method: 'POST',
     contentType: 'application/json',
-    data: JSON.stringify(cart)
+    data: JSON.stringify({ items: cart })
   }).done(function (res) {
-    $('#saveMessage').attr('class', 'alert alert-success mt-3').text('Cart saved! ' + res.items.length + ' item(s), cart ' + res.id + '.').prop('hidden', false);
+    $('#saveMessage').attr('class', 'alert alert-success mt-3').text('Cart saved! ' + res.items.length + ' item(s).').prop('hidden', false);
   }).fail(function () {
-    $('#saveMessage').attr('class', 'alert alert-danger mt-3').text('Could not reach the server. Run "node js/server.js" first.').prop('hidden', false);
+    $('#saveMessage').attr('class', 'alert alert-danger mt-3').text('Could not reach the server. Run "node server.js" first.').prop('hidden', false);
   });
 }
 
@@ -71,15 +71,9 @@ $(function () {
   $('#search').on('input', showResults);
   $('#saveCart').on('click', saveCart);
 
-  // load the same products the Shop page uses
-  const saved = localStorage.getItem('partwise.products');
-  if (saved) {
-    products = JSON.parse(saved);
+  // AJAX: load the products from the database
+  $.getJSON('/api/products', function (data) {
+    products = data;
     showResults();
-  } else {
-    $.getJSON('data/products.json', function (data) {
-      products = data;
-      showResults();
-    });
-  }
+  });
 });

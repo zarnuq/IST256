@@ -1,14 +1,20 @@
-// products.js: add, edit, delete and search products with jQuery.
+// products.js: add, edit, delete and search products with jQuery, saved in MongoDB through /api/products.
 
-const PRODUCTS_KEY = 'partwise.products';
 const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 let products = [];
 let editingId = null;
 
-// Saves the products to localStorage and refreshes the page.
-function save() {
-  localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
-  render();
+// AJAX: gets every product from the server, then redraws the page.
+function loadProducts() {
+  $.getJSON('/api/products')
+    .done(data => { products = data; render(); })
+    .fail(() => $('#noResults').text('Could not reach the server. Run "node server.js" and open http://localhost:3000.').prop('hidden', false));
+}
+
+// Shows a server error in the alert at the top of the form.
+function serverError(xhr) {
+  const errors = (xhr.responseJSON && xhr.responseJSON.errors) || ['Could not reach the server.'];
+  $('#formAlert').text(errors.join(' ')).prop('hidden', false);
 }
 
 // Reads the form fields into a product object.
@@ -90,9 +96,13 @@ function card(p) {
       $('<button type="button" class="btn btn-sm btn-primary">Edit</button>').on('click', () => startEdit(p)),
       $('<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>').on('click', () => {
         if (!confirm('Delete ' + p.description + '?')) return;
-        products = products.filter(x => x.id !== p.id);
-        if (editingId === p.id) resetForm();
-        save();
+        // AJAX DELETE
+        $.ajax({ url: '/api/products/' + encodeURIComponent(p.id), method: 'DELETE' })
+          .done(() => {
+            if (editingId === p.id) resetForm();
+            loadProducts();
+          })
+          .fail(serverError);
       })
     )
   );
@@ -130,13 +140,18 @@ $(function () {
     if (Object.keys(errors).length) return;
 
     p.price = Number(p.price);
-    const old = products.find(x => x.id === editingId);
-    if (old) Object.assign(old, p);
-    else products.push(p);
-    const message = (old ? 'Updated ' : 'Added ') + p.description + '.';
-    resetForm();
-    save();
-    $('#formAlert').text(message).prop('hidden', false);
+    const editing = Boolean(editingId);
+    // AJAX: PUT updates a product, POST adds a new one
+    $.ajax({
+      url: editing ? '/api/products/' + encodeURIComponent(editingId) : '/api/products',
+      method: editing ? 'PUT' : 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(p)
+    }).done(() => {
+      resetForm();
+      loadProducts();
+      $('#formAlert').text((editing ? 'Updated ' : 'Added ') + p.description + '.').prop('hidden', false);
+    }).fail(serverError);
   });
 
   $('#downloadBtn').on('click', function () {
@@ -144,14 +159,5 @@ $(function () {
     $('<a download="products.json">').attr('href', URL.createObjectURL(blob))[0].click();
   });
 
-  // saved changes win; first visit starts from data/products.json
-  const saved = localStorage.getItem(PRODUCTS_KEY);
-  if (saved) {
-    products = JSON.parse(saved);
-    render();
-  } else {
-    $.getJSON('data/products.json')
-      .done(data => { products = data; save(); })
-      .fail(() => $('#noResults').text('Could not load data/products.json. Run "node js/server.js" and open http://localhost:3000.').prop('hidden', false));
-  }
+  loadProducts();
 });

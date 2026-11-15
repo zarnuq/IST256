@@ -1,0 +1,13 @@
+{
+  "name": "partwise",
+  "version": "1.0.0",
+  "description": "Partwise PC parts store: Express + MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "mongoose": "^9.12.1"
+  }
+}

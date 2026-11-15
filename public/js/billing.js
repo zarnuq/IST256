@@ -44,7 +44,7 @@ angular.module('billingApp', []).controller('BillingCtrl', function ($scope, $ht
       $scope.message = 'Payment approved! Your confirmation number is ' + res.data.id + '.';
     }, function () {
       $scope.success = false;
-      $scope.message = 'Could not reach the server. Run "node js/server.js" first.';
+      $scope.message = 'Could not reach the server. Run "node server.js" first.';
     });
   };
 });

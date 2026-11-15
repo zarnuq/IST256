@@ -43,7 +43,7 @@ angular.module('returnsApp', []).controller('ReturnsCtrl', function ($scope, $ht
       $scope.message = 'Return submitted! Your return number is ' + res.data.id + '.';
     }, function () {
       $scope.success = false;
-      $scope.message = 'Could not reach the server. Run "node js/server.js" first.';
+      $scope.message = 'Could not reach the server. Run "node server.js" first.';
     });
   };
 });
@@ -70,7 +70,8 @@ function showResults() {
 
 $(function () {
   $('#search').on('input', showResults);
-  $.getJSON('data/products.json', function (data) {
+  // AJAX: load the products from the database
+  $.getJSON('/api/products', function (data) {
     products = data;
     showResults();
   });

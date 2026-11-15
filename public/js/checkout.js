@@ -26,12 +26,12 @@ angular.module('checkoutApp', []).controller('CheckoutCtrl', function ($scope, $
     $scope.message = '';
     if (Object.keys($scope.errors).length) return;
 
-    // AJAX POST to the RESTful API (built in a later lab)
-    $http.post('/api/orders', $scope.order()).then(function () {
+    // AJAX POST: saves the shipping info to the shipping collection in MongoDB
+    $http.post('/api/shipping', $scope.order()).then(function () {
       // order saved, so send them on to pay
       window.location.href = 'billing.html';
     }, function () {
-      $scope.message = 'Order is valid. API not built yet, so order.json is ready to send.';
+      $scope.message = 'Could not reach the server. Run "node server.js" first.';
     });
   };
 });
