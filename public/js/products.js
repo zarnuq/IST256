@@ -1,23 +1,26 @@
-// products.js: add, edit, delete and search products with jQuery, saved in MongoDB through /api/products.
+// products page (jquery + ajax)
 
-const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 let products = [];
 let editingId = null;
 
-// AJAX: gets every product from the server, then redraws the page.
+// ajax get all products
 function loadProducts() {
   $.getJSON('/api/products')
-    .done(data => { products = data; render(); })
-    .fail(() => $('#noResults').text('Could not reach the server. Run "node server.js" and open http://localhost:3000.').prop('hidden', false));
+    .done(function (data) {
+      products = data;
+      render();
+    })
+    .fail(function () {
+      $('#noResults').text('Could not reach the server. Run "node server.js" and open http://localhost:3000.').prop('hidden', false);
+    });
 }
 
-// Shows a server error in the alert at the top of the form.
 function serverError(xhr) {
-  const errors = (xhr.responseJSON && xhr.responseJSON.errors) || ['Could not reach the server.'];
-  $('#formAlert').text(errors.join(' ')).prop('hidden', false);
+  let message = 'Could not reach the server.';
+  if (xhr.responseJSON) message = xhr.responseJSON.errors.join(' ');
+  $('#formAlert').text(message).prop('hidden', false);
 }
 
-// Reads the form fields into a product object.
 function readProduct() {
   return {
     id: $('#id').val().trim(),
@@ -29,11 +32,11 @@ function readProduct() {
   };
 }
 
-// Returns { field: message } for every invalid field.
+// returns {field: error message}
 function validate(p) {
   const errors = {};
   if (!/^[A-Za-z0-9-]{2,40}$/.test(p.id)) errors.id = 'ID must be 2 to 40 letters, numbers or hyphens.';
-  else if (!editingId && products.some(x => x.id === p.id)) errors.id = 'That ID is already used.';
+  else if (!editingId && products.some(function (x) { return x.id === p.id; })) errors.id = 'That ID is already used.';
   if (p.description.length < 2) errors.description = 'Enter a description.';
   if (!p.category) errors.category = 'Choose a category.';
   if (!p.unit) errors.unit = 'Choose a unit.';
@@ -41,7 +44,6 @@ function validate(p) {
   return errors;
 }
 
-// Marks each field red with its message, or clears it.
 function showErrors(errors) {
   $('#productForm [name]').each(function () {
     $(this).toggleClass('is-invalid', Boolean(errors[this.name]))
@@ -50,7 +52,7 @@ function showErrors(errors) {
   $('#productForm .is-invalid').first().trigger('focus');
 }
 
-// Puts the form back into "add" mode.
+// back to add mode
 function resetForm() {
   editingId = null;
   $('#productForm')[0].reset();
@@ -60,10 +62,14 @@ function resetForm() {
   showErrors({});
 }
 
-// Loads a product into the form for editing.
 function startEdit(p) {
   editingId = p.id;
-  $.each(readProduct(), name => $('#' + name).val(p[name]));
+  $('#id').val(p.id);
+  $('#description').val(p.description);
+  $('#category').val(p.category);
+  $('#unit').val(p.unit);
+  $('#price').val(p.price);
+  $('#additionalInfo').val(p.additionalInfo);
   $('#id').prop('readonly', true);
   $('#formTitle').text('Edit ' + p.id);
   $('#saveBtn').text('Save changes');
@@ -71,34 +77,32 @@ function startEdit(p) {
   $('#productForm')[0].scrollIntoView({ behavior: 'smooth' });
 }
 
-// Adds one of this product to the cart the Cart page uses (or bumps its quantity).
+// same cart the cart page uses
 function addToCart(p, button) {
   const cart = JSON.parse(localStorage.getItem('partwise.cart') || '[]');
-  const item = cart.find(x => x.id === p.id);
+  const item = cart.find(function (x) { return x.id === p.id; });
   if (item) item.quantity += 1;
   else cart.push({ id: p.id, description: p.description, category: p.category, unit: p.unit, price: p.price, quantity: 1 });
   localStorage.setItem('partwise.cart', JSON.stringify(cart));
   updateCartCount();
-  // quick "it worked" on the button
   $(button).text('Added!');
-  setTimeout(() => $(button).text('Add to cart'), 1000);
+  setTimeout(function () { $(button).text('Add to cart'); }, 1000);
 }
 
-// Builds one product card. .text() keeps typed HTML from running.
+// one product card. using .text() so html doesnt get injected
 function card(p) {
   const body = $('<div class="card-body d-flex flex-column">').append(
     $('<p class="small text-body-secondary mb-1">').text(p.category + ' · ' + p.id),
     $('<h3 class="h6 card-title">').text(p.description),
     $('<p class="card-text small">').text(p.additionalInfo),
-    $('<p class="fw-bold mt-auto">').text(money.format(p.price) + ' / ' + p.unit),
+    $('<p class="fw-bold mt-auto">').text('$' + p.price.toFixed(2) + ' / ' + p.unit),
     $('<div class="d-flex gap-2">').append(
       $('<button type="button" class="btn btn-sm btn-dark">Add to cart</button>').on('click', function () { addToCart(p, this); }),
-      $('<button type="button" class="btn btn-sm btn-primary">Edit</button>').on('click', () => startEdit(p)),
-      $('<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>').on('click', () => {
+      $('<button type="button" class="btn btn-sm btn-primary">Edit</button>').on('click', function () { startEdit(p); }),
+      $('<button type="button" class="btn btn-sm btn-outline-danger">Delete</button>').on('click', function () {
         if (!confirm('Delete ' + p.description + '?')) return;
-        // AJAX DELETE
-        $.ajax({ url: '/api/products/' + encodeURIComponent(p.id), method: 'DELETE' })
-          .done(() => {
+        $.ajax({ url: '/api/products/' + p.id, method: 'DELETE' })
+          .done(function () {
             if (editingId === p.id) resetForm();
             loadProducts();
           })
@@ -106,28 +110,33 @@ function card(p) {
       })
     )
   );
-  const image = p.image && $('<img class="card-img-top p-3" height="180" style="object-fit: contain" loading="lazy">')
-    .attr({ src: p.image, alt: p.description });
-  return $('<div class="col-md-6 col-lg-4">').append($('<div class="card h-100">').append(image, body));
+  const cardDiv = $('<div class="card h-100">');
+  if (p.image) {
+    cardDiv.append($('<img class="card-img-top p-3" height="180" style="object-fit: contain">').attr({ src: p.image, alt: p.description }));
+  }
+  cardDiv.append(body);
+  return $('<div class="col-md-6 col-lg-4">').append(cardDiv);
 }
 
-// Redraws the cards, count, category filter and JSON view.
+// redraw cards + json
 function render() {
   const term = $('#search').val().toLowerCase();
   const category = $('#filter').val();
-  const shown = products.filter(p =>
-    (!category || p.category === category) &&
-    (p.id + ' ' + p.description + ' ' + p.additionalInfo).toLowerCase().includes(term));
+  let count = 0;
 
-  $('#productGrid').empty().append(shown.map(card));
-  $('#noResults').prop('hidden', shown.length > 0);
+  $('#productGrid').empty();
+  products.forEach(function (p) {
+    if (category && p.category !== category) return;
+    if (!(p.id + ' ' + p.description + ' ' + p.additionalInfo).toLowerCase().includes(term)) return;
+    $('#productGrid').append(card(p));
+    count++;
+  });
+  $('#noResults').prop('hidden', count > 0);
   $('#productCount').text(products.length);
   $('#jsonView').text(JSON.stringify(products, null, 2));
 }
 
 $(function () {
-  // copy the category choices from the form into the filter
-  $('#category option').slice(1).clone().appendTo('#filter');
   $('#search, #filter').on('input change', render);
   $('#cancelBtn').on('click', resetForm);
 
@@ -141,22 +150,17 @@ $(function () {
 
     p.price = Number(p.price);
     const editing = Boolean(editingId);
-    // AJAX: PUT updates a product, POST adds a new one
+    // PUT if editing, POST if new
     $.ajax({
-      url: editing ? '/api/products/' + encodeURIComponent(editingId) : '/api/products',
+      url: editing ? '/api/products/' + editingId : '/api/products',
       method: editing ? 'PUT' : 'POST',
       contentType: 'application/json',
       data: JSON.stringify(p)
-    }).done(() => {
+    }).done(function () {
       resetForm();
       loadProducts();
       $('#formAlert').text((editing ? 'Updated ' : 'Added ') + p.description + '.').prop('hidden', false);
     }).fail(serverError);
-  });
-
-  $('#downloadBtn').on('click', function () {
-    const blob = new Blob([JSON.stringify(products, null, 2)], { type: 'application/json' });
-    $('<a download="products.json">').attr('href', URL.createObjectURL(blob))[0].click();
   });
 
   loadProducts();

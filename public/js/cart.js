@@ -1,9 +1,9 @@
-// cart.js: search products, add and remove cart items.
+// cart page
 
 let products = [];
 let cart = JSON.parse(localStorage.getItem('partwise.cart') || '[]');
 
-// Shows the products that match the search box.
+// jquery search
 function showResults() {
   const term = $('#search').val().toLowerCase();
   $('#results').empty();
@@ -16,7 +16,7 @@ function showResults() {
   });
 }
 
-// Checks the quantity, then adds the product to the cart.
+// qty has to be 1-10
 function addToCart(p) {
   const qty = Number($('#qty').val());
   if (!Number.isInteger(qty) || qty < 1 || qty > 10) {
@@ -28,7 +28,7 @@ function addToCart(p) {
   showCart();
 }
 
-// Redraws the cart, total and JSON view, and saves the cart.
+// redraw cart + total + json, then save to localStorage
 function showCart() {
   let total = 0;
   $('#cartItems').empty();
@@ -48,7 +48,7 @@ function showCart() {
   updateCartCount();
 }
 
-// AJAX: saves the cart to the shoppingcart collection in MongoDB.
+// ajax post to /api/cart
 function saveCart() {
   if (!cart.length) {
     $('#saveMessage').attr('class', 'alert alert-danger mt-3').text('Your cart is empty. Add a product first.').prop('hidden', false);
@@ -71,7 +71,7 @@ $(function () {
   $('#search').on('input', showResults);
   $('#saveCart').on('click', saveCart);
 
-  // AJAX: load the products from the database
+  // get products from the api
   $.getJSON('/api/products', function (data) {
     products = data;
     showResults();

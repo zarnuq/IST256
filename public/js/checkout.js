@@ -1,4 +1,4 @@
-// checkout.js angularjs order form that sends the order to the api with ajax.
+// checkout page (angular + jquery)
 
 const cart = JSON.parse(localStorage.getItem('partwise.cart') || '[]');
 
@@ -6,7 +6,7 @@ angular.module('checkoutApp', []).controller('CheckoutCtrl', function ($scope, $
   $scope.form = { fullName: '', email: '', delivery: '', assembly: false };
   $scope.errors = {};
 
-  // the JSON document: form options plus the cart items
+  // order json = form + cart
   $scope.order = function () {
     return angular.extend({ items: cart }, $scope.form);
   };
@@ -15,8 +15,7 @@ angular.module('checkoutApp', []).controller('CheckoutCtrl', function ($scope, $
     const errors = {};
     if (!f.fullName.trim()) errors.fullName = 'Full name is required.';
     else if (!/^[A-Za-z .'-]{2,60}$/.test(f.fullName.trim())) errors.fullName = 'Name must be 2 to 60 letters.';
-    if (!f.email) errors.email = 'Email is required.';
-    else if (!/^\S+@\S+\.\S+$/.test(f.email)) errors.email = 'Enter a valid email, like name@example.com.';
+    if (!/^\S+@\S+\.\S+$/.test(f.email || '')) errors.email = 'Enter a valid email, like name@example.com.';
     if (!f.delivery) errors.delivery = 'Choose a delivery option.';
     return errors;
   }
@@ -26,9 +25,8 @@ angular.module('checkoutApp', []).controller('CheckoutCtrl', function ($scope, $
     $scope.message = '';
     if (Object.keys($scope.errors).length) return;
 
-    // AJAX POST: saves the shipping info to the shipping collection in MongoDB
+    // save to shipping collection then go to billing
     $http.post('/api/shipping', $scope.order()).then(function () {
-      // order saved, so send them on to pay
       window.location.href = 'billing.html';
     }, function () {
       $scope.message = 'Could not reach the server. Run "node server.js" first.';
@@ -36,12 +34,7 @@ angular.module('checkoutApp', []).controller('CheckoutCtrl', function ($scope, $
   };
 });
 
-// start AngularJS by hand if it did not start on its own (a browser extension can stop the automatic start)
-angular.element(function () {
-  if (!angular.element(document.body).injector()) angular.bootstrap(document.body, ['checkoutApp']);
-});
-
-// jQuery: show the cart items saved by the Cart page
+// order summary from the cart
 $(function () {
   let total = 0;
   cart.forEach(function (item) {

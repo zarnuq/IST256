@@ -21,7 +21,7 @@
 
 <body class="d-flex flex-column min-vh-100">
 
-  <!-- Navigation -->
+  <!-- nav -->
   <nav class="navbar navbar-expand-lg bg-white sticky-top">
     <div class="container">
       <a class="navbar-brand" href="index.html">
@@ -84,10 +84,9 @@
   <main class="container py-5 flex-grow-1">
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
       <h1 class="fw-bold mb-0">Shop PC Parts <span class="badge text-bg-primary align-middle" id="productCount">0</span></h1>
-      <button type="button" class="btn btn-dark" id="downloadBtn">Download products.json</button>
     </div>
 
-    <!-- Add / edit form -->
+    <!-- add/edit form -->
     <form id="productForm" class="card card-body mb-4" novalidate>
       <h2 class="h5" id="formTitle">Add a product</h2>
       <div id="formAlert" class="alert alert-success" role="status" hidden></div>
@@ -143,7 +142,7 @@
       </div>
     </form>
 
-    <!-- Search and filter -->
+    <!-- search + filter -->
     <div class="row g-2 mb-4">
       <div class="col-md-8">
         <label for="search" class="visually-hidden">Search products</label>
@@ -153,6 +152,14 @@
         <label for="filter" class="visually-hidden">Category</label>
         <select class="form-select" id="filter">
           <option value="">All categories</option>
+          <option>CPUs</option>
+          <option>Graphics Cards</option>
+          <option>Motherboards</option>
+          <option>Memory / RAM</option>
+          <option>Storage</option>
+          <option>Cases</option>
+          <option>Power Supplies</option>
+          <option>Cooling</option>
         </select>
       </div>
     </div>
@@ -160,7 +167,7 @@
     <div id="productGrid" class="row g-4"></div>
     <p id="noResults" class="alert alert-info mt-4" hidden>No products match your search.</p>
 
-    <!-- Live copy of the stored JSON -->
+    <!-- json view -->
     <h2 class="h5 mt-5">products.json</h2>
     <pre id="jsonView" class="border rounded p-3 bg-light small" style="max-height: 300px"></pre>
   </main>

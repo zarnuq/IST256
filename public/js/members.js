@@ -1,16 +1,16 @@
-// grabbing the table stuff from the page so we can mess with it
+// members page
 const memberRows = document.getElementById('memberRows');
 const memberCount = document.getElementById('memberCount');
 const searchInput = document.getElementById('searchInput');
+const jsonView = document.getElementById('jsonView');
 
-// Adds a cell with plain text (textContent, never innerHTML, so typed HTML can't run).
+// textContent not innerHTML so nobody can inject html
 function addCell(row, text) {
   const cell = document.createElement('td');
   cell.textContent = text;
   row.appendChild(cell);
 }
 
-// Makes a small button that runs onClick.
 function makeButton(label, style, onClick) {
   const button = document.createElement('button');
   button.type = 'button';
@@ -20,9 +20,7 @@ function makeButton(label, style, onClick) {
   return button;
 }
 
-// Redraws the table and the member count.
 function render() {
-  // fresh copy of everyone from localStorage
   const members = getMembers();
   const search = searchInput.value.toLowerCase();
   const shown = members.filter(function (m) {
@@ -30,6 +28,7 @@ function render() {
   });
 
   memberCount.textContent = members.length;
+  jsonView.textContent = JSON.stringify(members, null, 2);
   memberRows.textContent = '';
 
   if (shown.length === 0) {
@@ -39,7 +38,6 @@ function render() {
     return;
   }
 
-  // member rows
   shown.forEach(function (m, index) {
     const row = memberRows.insertRow();
     addCell(row, index + 1);
@@ -51,7 +49,7 @@ function render() {
     addCell(row, m.role);
     addCell(row, new Date(m.createdAt).toLocaleDateString());
 
-    // edit and delete buttons go in the last column
+    // edit/delete buttons
     const actions = document.createElement('td');
     actions.className = 'text-end text-nowrap';
     actions.append(
@@ -63,18 +61,15 @@ function render() {
 }
 
 searchInput.addEventListener('input', render);
-document.getElementById('downloadBtn').addEventListener('click', downloadMembers);
 render();
 
-
+// edit modal
 const editForm = document.getElementById('editForm');
 const editModal = new bootstrap.Modal(document.getElementById('editModal'));
 let editingId = null;
 
-// Opens the edit modal filled in with this member's details.
 function openEdit(member) {
   editingId = member.id;
-  // copy their info into the form boxes
   FIELDS.forEach(function (name) {
     editForm.elements[name].value = member[name];
   });
@@ -82,7 +77,6 @@ function openEdit(member) {
   editModal.show();
 }
 
-// Asks first, then deletes the member.
 function removeMember(member) {
   if (confirm('Delete ' + member.fullName + '?')) {
     deleteMember(member.id);

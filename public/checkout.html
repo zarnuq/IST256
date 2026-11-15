@@ -22,7 +22,7 @@
 
 <body class="d-flex flex-column min-vh-100" ng-app="checkoutApp" ng-controller="CheckoutCtrl">
 
-  <!-- Navigation -->
+  <!-- nav -->
   <nav class="navbar navbar-expand-lg bg-white sticky-top">
     <div class="container">
       <a class="navbar-brand" href="index.html">
@@ -83,9 +83,9 @@
     <h1 class="mb-4">Checkout</h1>
     <div class="row">
 
-      <!-- order options -->
+      <!-- order form -->
       <div class="col-md-7 mb-4">
-        <form class="card card-body" novalidate ng-submit="submit()" ng-model-options="{ allowInvalid: true }">
+        <form class="card card-body" novalidate ng-submit="submit()">
           <div class="mb-3">
             <label for="fullName" class="form-label">Full name *</label>
             <input class="form-control" id="fullName" ng-model="form.fullName" ng-class="{'is-invalid': errors.fullName}">
@@ -117,7 +117,7 @@
         </form>
       </div>
 
-      <!-- cart summary, filled by jQuery -->
+      <!-- summary (jquery) -->
       <div class="col-md-5">
         <h2 class="h5">Order summary</h2>
         <ul id="summary" class="list-group mb-2"></ul>
@@ -125,7 +125,7 @@
       </div>
     </div>
 
-    <!-- order JSON that gets sent -->
+    <!-- json view -->
     <h2 class="h5 mt-4">order.json</h2>
     <pre class="border p-3 bg-light" ng-bind="order() | json"></pre>
   </main>

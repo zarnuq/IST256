@@ -1,4 +1,4 @@
-// returns.js: jquery search + angular return form, sends json with ajax
+// returns page (angular form + jquery search)
 
 angular.module('returnsApp', []).controller('ReturnsCtrl', function ($scope, $http) {
   $scope.form = { fullName: '', email: '', details: '' };
@@ -7,7 +7,7 @@ angular.module('returnsApp', []).controller('ReturnsCtrl', function ($scope, $ht
   $scope.reasons = ['Defective', 'Arrived damaged', 'Wrong item', 'Not compatible', 'Changed my mind'];
   $scope.conditions = ['New, unopened', 'Opened', 'Used', 'Damaged'];
 
-  // jquery return button calls this
+  // called from the jquery Return button
   $scope.addItem = function (p) {
     if ($scope.items.some(function (item) { return item.id === p.id; })) return;
     $scope.items.push({ id: p.id, name: p.description, price: p.price, image: p.image, reason: '', condition: '' });
@@ -15,7 +15,6 @@ angular.module('returnsApp', []).controller('ReturnsCtrl', function ($scope, $ht
 
   $scope.removeItem = function (i) { $scope.items.splice(i, 1); };
 
-  // return json
   $scope.returnDoc = function () {
     return angular.extend({ items: $scope.items }, $scope.form);
   };
@@ -37,7 +36,7 @@ angular.module('returnsApp', []).controller('ReturnsCtrl', function ($scope, $ht
     $scope.message = '';
     if (Object.keys($scope.errors).length) return;
 
-    // ajax post to node api
+    // send to the api
     $http.post('/api/returns', $scope.returnDoc()).then(function (res) {
       $scope.success = true;
       $scope.message = 'Return submitted! Your return number is ' + res.data.id + '.';
@@ -60,7 +59,7 @@ function showResults() {
     row.append($('<img class="thumb">').attr({ src: p.image, alt: p.description }));
     row.append($('<span class="flex-grow-1 small"></span>').text(p.description + ' - $' + p.price.toFixed(2)));
     row.append($('<button class="btn btn-sm btn-primary">Return</button>').click(function () {
-      // send product to angular
+      // have to use $apply since this is outside angular
       const scope = angular.element(document.body).scope();
       scope.$apply(function () { scope.addItem(p); });
     }));
@@ -70,7 +69,7 @@ function showResults() {
 
 $(function () {
   $('#search').on('input', showResults);
-  // AJAX: load the products from the database
+  // get products from the api
   $.getJSON('/api/products', function (data) {
     products = data;
     showResults();

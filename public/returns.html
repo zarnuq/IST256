@@ -83,7 +83,7 @@
     <h1 class="mb-4">Returns</h1>
     <div class="row">
 
-      <!-- jquery search -->
+      <!-- search (jquery) -->
       <div class="col-md-5 mb-4">
         <h2 class="h5">Find products to return</h2>
         <input type="search" class="form-control mb-2" id="search" placeholder="Search products">
@@ -109,7 +109,6 @@
           <p class="form-label">Products to return *</p>
           <p class="text-danger" ng-show="errors.items" ng-bind="errors.items"></p>
 
-          <!-- one box per product -->
           <div class="border rounded p-3 mb-3" ng-repeat="item in items">
             <div class="d-flex gap-3 align-items-center mb-2">
               <img class="thumb" ng-src="{{item.image}}" alt="{{item.name}}">
@@ -147,7 +146,7 @@
       </div>
     </div>
 
-    <!-- return json -->
+    <!-- json view -->
     <h2 class="h5 mt-4">returns.json</h2>
     <pre class="border p-3 bg-light" ng-bind="returnDoc() | json"></pre>
   </main>

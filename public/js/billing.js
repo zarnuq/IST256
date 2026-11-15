@@ -1,4 +1,4 @@
-// billing.js: angular billing form, sends json with ajax
+// billing page (angular)
 
 const cart = JSON.parse(localStorage.getItem('partwise.cart') || '[]');
 
@@ -8,10 +8,12 @@ angular.module('billingApp', []).controller('BillingCtrl', function ($scope, $ht
   $scope.items = cart;
 
   $scope.total = function () {
-    return cart.reduce(function (sum, item) { return sum + item.price * item.quantity; }, 0);
+    let sum = 0;
+    cart.forEach(function (item) { sum += item.price * item.quantity; });
+    return sum;
   };
 
-  // billing json, only last 4 card digits, no security code
+  // dont store the full card number or the cvv
   $scope.billing = function () {
     const f = $scope.form;
     return {
@@ -38,7 +40,7 @@ angular.module('billingApp', []).controller('BillingCtrl', function ($scope, $ht
     $scope.message = '';
     if (Object.keys($scope.errors).length) return;
 
-    // ajax post to node api
+    // send to the api
     $http.post('/api/billing', $scope.billing()).then(function (res) {
       $scope.success = true;
       $scope.message = 'Payment approved! Your confirmation number is ' + res.data.id + '.';

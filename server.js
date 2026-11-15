@@ -1,5 +1,5 @@
-// server.js: express + mongodb (mongoose) rest api for the partwise store
-// run: npm install (first time), then node server.js, open http://localhost:3000
+// partwise backend (express + mongoose)
+// npm install, then node server.js and go to localhost:3000
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -9,10 +9,11 @@ const PORT = 3000;
 const MONGO_URL = 'mongodb://127.0.0.1:27017/partwise';
 
 const app = express();
-app.use(express.json());                                 // read json request bodies
-app.use(express.static(path.join(__dirname, 'public'))); // serve html, css, js, images, json
+app.use(express.json());
+// serves everything in public/
+app.use(express.static(path.join(__dirname, 'public')));
 
-// ---------- schemas (one collection each) ----------
+// schemas
 
 const Product = mongoose.model('Product', new mongoose.Schema({
   id: { type: String, required: true, unique: true },
@@ -61,7 +62,7 @@ const Return = mongoose.model('Return', new mongoose.Schema({
   items: Array
 }), 'returns');
 
-// ---------- extra checks before saving ----------
+// server side validation
 
 function checkCart(c) {
   return (!c.items || c.items.length === 0) ? ['Cart is empty.'] : [];
@@ -85,60 +86,85 @@ function checkReturn(r) {
   return errors;
 }
 
-// ---------- crud routes ----------
-// makes GET all, GET one, POST, PUT and DELETE for one collection, e.g. /api/billing and /api/billing/B-123
-function crud(name, Model, prefix, check) {
-  const url = '/api/' + name;
+// products (full crud)
 
-  // read all
-  app.get(url, async function (req, res) {
-    res.json(await Model.find().sort({ _id: 1 }));
-  });
+app.get('/api/products', async function (req, res) {
+  res.json(await Product.find());
+});
 
-  // read one
-  app.get(url + '/:id', async function (req, res) {
-    const doc = await Model.findOne({ id: req.params.id });
-    if (!doc) return res.status(404).json({ errors: ['Not found.'] });
-    res.json(doc);
-  });
+app.post('/api/products', async function (req, res) {
+  const product = await Product.create(req.body);
+  res.status(201).json(product);
+});
 
-  // create (products bring their own id, the rest get one like B-1731600000000)
-  app.post(url, async function (req, res) {
-    const errors = check ? check(req.body) : [];
-    if (errors.length) return res.status(400).json({ errors: errors });
-    const doc = await Model.create(Object.assign({ id: prefix + Date.now() }, req.body));
-    res.status(201).json(doc);
-  });
+app.put('/api/products/:id', async function (req, res) {
+  const product = await Product.findOneAndUpdate({ id: req.params.id }, req.body, { returnDocument: 'after', runValidators: true });
+  if (!product) return res.status(404).json({ errors: ['Product not found.'] });
+  res.json(product);
+});
 
-  // update
-  app.put(url + '/:id', async function (req, res) {
-    const doc = await Model.findOneAndUpdate({ id: req.params.id }, req.body, { returnDocument: 'after', runValidators: true });
-    if (!doc) return res.status(404).json({ errors: ['Not found.'] });
-    res.json(doc);
-  });
+app.delete('/api/products/:id', async function (req, res) {
+  const product = await Product.findOneAndDelete({ id: req.params.id });
+  if (!product) return res.status(404).json({ errors: ['Product not found.'] });
+  res.json({ deleted: req.params.id });
+});
 
-  // delete
-  app.delete(url + '/:id', async function (req, res) {
-    const doc = await Model.findOneAndDelete({ id: req.params.id });
-    if (!doc) return res.status(404).json({ errors: ['Not found.'] });
-    res.json({ deleted: req.params.id });
-  });
-}
+// billing (full crud)
 
-crud('products', Product, 'P-');
-crud('cart', Cart, 'C-', checkCart);
-crud('shipping', Shipping, 'S-');
-crud('billing', Billing, 'B-', checkBilling);
-crud('returns', Return, 'R-', checkReturn);
+app.get('/api/billing', async function (req, res) {
+  res.json(await Billing.find());
+});
 
-// bad data (like a missing required field or a duplicate product id) comes back as 400
+app.post('/api/billing', async function (req, res) {
+  const errors = checkBilling(req.body);
+  if (errors.length > 0) return res.status(400).json({ errors: errors });
+  req.body.id = 'B-' + Date.now();
+  const bill = await Billing.create(req.body);
+  res.status(201).json(bill);
+});
+
+app.put('/api/billing/:id', async function (req, res) {
+  const bill = await Billing.findOneAndUpdate({ id: req.params.id }, req.body, { returnDocument: 'after', runValidators: true });
+  if (!bill) return res.status(404).json({ errors: ['Bill not found.'] });
+  res.json(bill);
+});
+
+app.delete('/api/billing/:id', async function (req, res) {
+  const bill = await Billing.findOneAndDelete({ id: req.params.id });
+  if (!bill) return res.status(404).json({ errors: ['Bill not found.'] });
+  res.json({ deleted: req.params.id });
+});
+
+// cart, shipping and returns just get saved
+
+app.post('/api/cart', async function (req, res) {
+  const errors = checkCart(req.body);
+  if (errors.length > 0) return res.status(400).json({ errors: errors });
+  req.body.id = 'C-' + Date.now();
+  const cart = await Cart.create(req.body);
+  res.status(201).json(cart);
+});
+
+app.post('/api/shipping', async function (req, res) {
+  req.body.id = 'S-' + Date.now();
+  const order = await Shipping.create(req.body);
+  res.status(201).json(order);
+});
+
+app.post('/api/returns', async function (req, res) {
+  const errors = checkReturn(req.body);
+  if (errors.length > 0) return res.status(400).json({ errors: errors });
+  req.body.id = 'R-' + Date.now();
+  const ret = await Return.create(req.body);
+  res.status(201).json(ret);
+});
+
+// mongoose errors (missing fields, duplicate id) -> 400
 app.use(function (err, req, res, next) {
   res.status(400).json({ errors: [err.message] });
 });
 
-// ---------- start ----------
-
-// first run: fill empty collections from the json files in public/data
+// load products.json into the db if it's empty
 async function seed(Model, file) {
   if (await Model.countDocuments() > 0) return;
   const docs = require('./public/data/' + file);
@@ -150,8 +176,6 @@ mongoose.connect(MONGO_URL)
   .then(async function () {
     console.log('Connected to MongoDB at ' + MONGO_URL);
     await seed(Product, 'products.json');
-    await seed(Billing, 'billing.json');
-    await seed(Return, 'returns.json');
     app.listen(PORT, function () {
       console.log('Partwise running at http://localhost:' + PORT);
     });
